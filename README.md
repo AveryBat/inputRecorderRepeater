@@ -1,0 +1,1 @@
+click button to record inputs, click button to repeat recorded inputs
