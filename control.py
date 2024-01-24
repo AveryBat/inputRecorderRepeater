@@ -1,11 +1,21 @@
 # Import Modules
 from tkinter import *
-from pynput.mouse import Controller
+from pynput.mouse import Controller, Button
 import time
 import json
 
 # File containing inputs
 json_file = "inputs.json"
+
+def string_to_button(str):
+    if str == 'Button.left':
+        return Button.left
+    elif str == 'Button.right':
+        return Button.right
+    elif str == 'Button.middle':
+        return Button.middle
+    else:
+        return Button.unknown
 
 def replay_inputs(inputs):
     mouse = Controller()
@@ -20,13 +30,12 @@ def replay_inputs(inputs):
             mouse.position = (x, y)
             print('moving to ({0}, {1})'.format(x, y))
         elif 'pressed' in type:
-            button = type.split()[1]
-            button = type.split('.')[1]
+            button = string_to_button(type.split()[1])
             mouse.press(button)
             print('{0} at ({1}, {2})'.format(type, x, y))
         elif 'released' in type:
-            button = type.split()[1]
-            button = type.split('.')[1]
+            button = string_to_button(type.split()[1])
+            mouse.release(button)
             print('{0} at ({1}, {2})'.format(type, x, y))
         elif 'scrolled' in type:
             direction = 'down' if 'down' in type else 'up'

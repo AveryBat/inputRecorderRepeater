@@ -21,6 +21,7 @@ def toggle_listener():
         # Stop the listener
         listener.stop()
         listener_on = False
+        write_to_json(inputs)
         print("Stopped")
     else:
         # Start the listener
@@ -49,7 +50,6 @@ def on_move(x, y):
                  'x': x,
                  'y': y})
         inputs.append(data)
-        write_to_json(inputs)
         print('moved to {0}'.format(
             (x, y)))
 
@@ -64,7 +64,6 @@ def on_click(x, y, button, pressed):
                  'x': x,
                  'y': y})
         inputs.append(data)
-        write_to_json(inputs)
         print(action)
 
 # Tracks mouse scroll
@@ -76,7 +75,6 @@ def on_scroll(x, y, dx, dy):
                   'x': x,
                   'y': y})
         inputs.append(data)
-        write_to_json(inputs)
         print('scrolled {0} at {1}'.format(
             uppies,
             (x, y)))
