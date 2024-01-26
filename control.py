@@ -1,6 +1,7 @@
 # Import Modules
 from tkinter import *
-from pynput.mouse import Controller, Button
+from pynput.mouse import Controller as MController, Button
+from pynput.keyboard import Controller as KController, Key
 import time
 import json
 
@@ -18,15 +19,34 @@ def string_to_button(str):
         return Button.unknown
 
 def replay_inputs(inputs):
-    mouse = Controller()
+    # Controllers
+    mouse = MController()
+    keyboard = KController()
 
+    # Goes through all the inputs in order
     for i, data in enumerate(inputs):
         type = data['type']
         x = data['x']
         y = data['y']
         timestamp = data['time']
 
-        if type == 'move':
+        if 'key' in type:
+            key_str = type.split()[2]
+            if key_str.lower() == 'f1':
+                key = Key.f1
+            elif key_str.lower() == 'space':
+                key = Key.space
+            else:
+                key = key_str.lower()
+
+            if 'pressed' in type:
+                keyboard.press(key)
+                print('key pressed: {0}'.format(key_str))
+            elif 'released' in type:
+                keyboard.release(key)
+                print('key released: {0}'.format(key_str))
+
+        elif type == 'move':
             mouse.position = (x, y)
             print('moving to ({0}, {1})'.format(x, y))
         elif 'pressed' in type:

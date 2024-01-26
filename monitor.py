@@ -1,13 +1,17 @@
 # Import Modules
 from tkinter import *
-from pynput import mouse
+from pynput import mouse, keyboard
 import time
 import json
 
-# Initalize listener
-listener = None
+# Initalize listeners
+mouse_listener = None
+key_listener = None
 # Global variable to track whether the listener is running
 listener_on = False
+
+# Set to store currently pressed keys
+pressed_keys = set()
 
 # File to store inputs
 json_file = "inputs.json"
@@ -16,20 +20,25 @@ json_file = "inputs.json"
 inputs = []
 
 def toggle_listener():
-    global listener, listener_on
+    global mouse_listener, key_listener, listener_on
     if listener_on:
         # Stop the listener
-        listener.stop()
+        mouse_listener.stop()
+        key_listener
         listener_on = False
         write_to_json(inputs)
         print("Stopped")
     else:
         # Start the listener
-        listener = mouse.Listener(
+        mouse_listener = mouse.Listener(
             on_move = on_move,
             on_click = on_click,
             on_scroll = on_scroll)
-        listener.start()
+        mouse_listener.start()
+        key_listener = keyboard.Listener(
+            on_press = on_press,
+            on_release = on_release)
+        key_listener.start()
         listener_on = True
         print("Started")
 
@@ -41,6 +50,36 @@ def write_to_json(data):
 # Gets timestamp for input sorting
 def get_time():
     return time.time()
+
+# Tracks key presses
+def on_press(key):
+        key_str = str(key).replace("Key.", "").replace("'", "")
+
+        # Check if key is not already in "pressed" state
+        if key_str not in pressed_keys:
+            data = ({'time': get_time(), 
+                    'type': 'key pressed ' + key_str,
+                    'x': '',
+                    'y': ''})
+            inputs.append(data)
+            pressed_keys.add(key_str)
+            print('key pressed: {0}'.format(
+                    (key_str)))
+
+# Tracks key releases
+def on_release(key):
+    if listener_on:
+        key_str = str(key).replace("Key.", "").replace("'", "")
+
+        data = ({'time': get_time(), 
+                 'type': 'key release ' + key_str,
+                 'x': '',
+                 'y': ''})
+        inputs.append(data)
+        pressed_keys.discard(key_str)
+        print('key released: {0}'.format(
+                (key_str)))
+
 
 # Tracks mouse movement
 def on_move(x, y):
